@@ -1,0 +1,39 @@
+- name: Deploy a Web Application
+  hosts: node-server1, node-server2
+  tasks:
+    - name: Nodejs | Add repository key
+      apt_key:
+        url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+
+    - name: Nodejs | Add repository
+      apt_repository:
+        repo: deb http://deb.nodesource.com/node_12.x {{ ansible_lsb.codename }} main
+        state: present
+        update_cache: yes
+
+    - name: Nodejs | Install
+      apt:
+        name:
+          - nodejs
+        state: present
+
+    - name: Copy source code directory src
+      copy:
+        src: src
+        dest: /opt
+
+    - name: Install forever (to run Node.js app).
+      npm: name=forever global=yes state=present
+
+    - name: Check list of Node.js apps running.
+      command: forever list
+      register: forever_list
+      changed_when: false
+
+    - name: Start Node.js app if app not running.
+      command: forever start /opt/src/app.js
+      when: forever_list.stdout.find('/opt/src/app.js') == -1
+
+    - name: Restart Node.js app if app running.
+      command: forever restart /opt/src/app.js
+      when: forever_list.stdout.find('/opt/src/app.js') != -1
