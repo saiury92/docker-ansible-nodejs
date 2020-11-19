@@ -13,19 +13,29 @@ git clone https://github.com/saiury92/docker-ansible-nodejs.git
 ```
 
 ## Create image
+```
 docker build -t ubuntu-ssh-enabled .
+```
 
 ## Create containers
+```
 docker run -itd --name node-server1 ubuntu-ssh-enabled
 docker run -itd --name node-server2 ubuntu-ssh-enabled
+```
 
 ## Check connectivity
+```
 ansible node-server* -m ping -i inventory
+```
 
 ## Run main playbook
+```
 ansible-playbook main.yml -i inventory
+```
 
 ## Clean up
+```
 docker stop node-server1 node-server2 && docker rm node-server1 node-server2
 docker rmi ubuntu-ssh-enabled
+```
 
